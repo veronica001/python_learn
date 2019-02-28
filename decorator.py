@@ -21,13 +21,14 @@ def mul(x, y):
     return x * y
 
 
-f1 = sum(11,12)
-f2 = mul(3,4)
-if f1 == 23 and f2 == 12:
+func1 = sum(11,12)
+func2 = mul(3,4)
+if func1 == 23 and func2 == 12:
     print('测试成功')
 else:
     print('测试失败')
 
+print('--------------------------------------------------------------------------------------------')
 
 # 请编写一个decorator，能在函数调用的前后打印出'begin call'和'end call'的日志。
 def decorator(func):
@@ -40,26 +41,44 @@ def decorator(func):
     return wrapper
 
 @decorator
-def func():
+def func3():
     print('test')
 
+func3()
 
-def log(x):
-    def decorator(func):
-        @functools.wraps(func)
+print('--------------------------------------------------------------------------------------------')
+#log函数不能采用默认参数是因为如果采用默认参数则log是一个函数，不再是装饰器，必须有括号，而上面方法中，
+# 当log有参数时它是一个函数，其中定义了一个装饰器，
+# 当没有参数时它就是一个装饰器。
+def log(x=''):
+    if isinstance(x, str):
+        def decorator(func):
+            @functools.wraps(func)
+            def wrapper(*args, **fw):
+                print('%s %s'% (x,func.__name__))
+                return func(*args, **fw)
+            return wrapper
+        return decorator
+    else:
+        @functools.wraps(x)
         def wrapper(*args, **fw):
-            print('%s'% (x))
-            return func(*args, **fw)
+            print('call %s' % x.__name__)
+            return x(*args, **fw)
         return wrapper
-    return decorator
 
-@log('excute')
+@log
 def f1():
-    print('haha')
+    print('hello f1')
 
-# @log
-# def f2():
-#     print('haha1')
+@log()
+def f2():
+    print('hello f2')
+
+@log('execute')
+def f3():
+    print('hello f3')
+
 
 f1()
-# f2()
+f2()
+f3()
