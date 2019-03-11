@@ -96,7 +96,7 @@ class IntegerField(Field):
 
 class ModelMetaclass(type):
     def __new__(cls, name, bases, attrs):
-        if name='Model':
+        if name=='Model':
             return type.__new__(cls,name,bases,attrs)
         print('Found model:%s' % name)
         mappings = dict()
