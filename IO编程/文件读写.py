@@ -74,3 +74,15 @@ file-like Object:
 with open('E:/MyCode/python/IO编程/test.txt', 'r') as f:
     s = f.read()
     print(s)
+
+'''
+seek() 方法用于移动文件读取指针到指定位置。
+    fileObject.seek(offset[, whence])
+    参数
+        offset -- 开始的偏移量，也就是代表需要移动偏移的字节数，如果是负数表示从倒数第几位开始。
+        whence：可选，默认值为 0。给 offset 定义一个参数，表示要从哪个位置开始偏移；
+            0 代表从文件开头开始算起，
+            1 代表从当前位置开始算起，
+            2 代表从文件末尾算起。
+tell() 方法返回文件的当前位置，即文件指针当前位置。
+'''
