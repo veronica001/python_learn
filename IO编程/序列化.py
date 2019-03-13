@@ -52,7 +52,7 @@ JSON表示的对象就是标准的JavaScript语言的对象，JSON和Python内�
     true/false 	True/False
     null 	    None    
     
-Python内置的json模块提供了非常完善的Python对象到JSON格式的转换
+Python内置的json模块提供了非常完善的Python对象到JSON格式的转换的 
 dumps()方法返回一个str，内容就是标准的JSON。
 dump()方法可以直接把JSON写入一个file-like Object
 
@@ -68,5 +68,57 @@ print(json.loads(json_str))
 
 '''
 JSON进阶：
+    Python的dict对象可以直接序列化为JSON的{}
+    class的实例化对象不能直接用json.dumps(x)序列化为json对象，但是dumps提供了一系列参数来定制json序列化
+     json.dumps(obj, *, skipkeys=False, ensure_ascii=True, check_circular=True, allow_nan=True, cls=None, indent=None, 
+        separators=None, default=None, sort_keys=False, **kw)
+        
+        可选参数default就是把任意一个对象变成一个可序列为JSON的对象
+        object_hook函数负责把dict转换为任意对象
+    因为通常class的实例都有一个__dict__属性，它就是一个dict，用来存储实例变量。也有少数例外，比如定义了__slots__的class。
+'''
+#
+class Student(object):
+    def __init__(self, name, age, score):
+        self.name = name
+        self.age = age
+        self.score = score
 
+s = Student('lily', 20, 85)
+
+def Student2dict(std):
+    return{
+        'name': std.name,
+        'age': std.age,
+        'score': std.score
+    }
+
+print(json.dumps(s, default=Student2dict))
+
+# 把任意class的实例变为dict：
+print(json.dumps(s, default=lambda obj: obj.__dict__))
+
+# 同样的道理，如果我们要把JSON反序列化为一个Student对象实例，loads()方法首先转换出一个dict对象，然后，我们传入的
+# object_hook函数负责把dict转换为Student实例:
+def dic2Student(d):
+    return Student(d['name'], d['age'], d['score'])
+
+json_str = '{"age": 20, "score": 88, "name": "amy"}'
+print(json.loads(json_str, object_hook=dic2Student))
+
+# 练习
+# 对中文进行JSON序列化时，json.dumps()提供了一个ensure_ascii参数，观察该参数对结果的影响：
+# #设置该参数为true则以Unicode编码保存中文,默认为true
+obj = dict(name="小明", age=50)
+s = json.dumps(obj, ensure_ascii=True)
+print(s)
+
+'''
+小结
+
+Python语言特定的序列化模块是pickle，但如果要把序列化搞得更通用、更符合Web标准，就可以使用json模块。
+
+json模块的dumps()和loads()函数是定义得非常好的接口的典范。当我们使用时，只需要传入一个必须的参数。但是，当默认的序列化
+或反序列机制不满足我们的要求时，我们又可以传入更多的参数来定制序列化或反序列化的规则，既做到了接口简单易用，又做到了充
+分的扩展性和灵活性。
 '''
