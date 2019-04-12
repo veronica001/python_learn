@@ -32,7 +32,8 @@ import re
 # 输出Python官网发布的会议时间、名称和地点。
 class MyHTMLParser(HTMLParser):
     def __init__(self):
-        super().__init__()   #这里super().__init__()和super(MyHTMLParser,self)是等价的
+        # super().__init__()   #这里super().__init__()和super(MyHTMLParser,self).__init__()是等价的
+        super(MyHTMLParser, self).__init__()
         self.__parsedata = '' #设置一个标记，初始为空
 
     def handle_starttag(self, tag, attrs):
