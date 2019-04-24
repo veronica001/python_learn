@@ -9,49 +9,43 @@
 
 '''
 from flask import request,Flask,render_template
-from sqlalchemy import Column, String, create_engine,ForeignKey,Integer
-from sqlalchemy.orm import sessionmaker,relationship
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
-
-class User(Base):
-    __tablename__ = 'user'
-
-    id = Column(Integer(5), primary_key=True, autoincrement=True)
-    name = Column(String(20))
-    pwd = Column(String(20))
-    books = relationship('Book')
-
-class Book(Base):
-    __tablename__ = 'book'
-
-    id = Column(Integer(5), primary_key=True)
-    name = Column(String(20))
-    user_id = Column(Integer(5), ForeignKey='user.id')
-
-# 初始化数据库连接:
-engine = create_engine('mysql+mysql-connector://root:123456@127.0.0.1:3306/test')
-# 创建DBSession类型:
-DBSession = sessionmaker(bind=engine)
+from practice.web.db  import DBSession,User
 
 # Flask类的实例为wsgi应用程序，第一个参数是应用模块或者包的名称
 app = Flask(__name__)
 
 #  route() 装饰器告诉 Flask 什么样的URL 能触发我们的函数
-@app.route('/', ['GET'])
+@app.route('/', methods=['GET'])
 def home():
     return render_template('form.html')
 
-@app.route('/signup', ['GET'])
+@app.route('/signup', methods=['GET'])
 def signup():
     return render_template('signup.html')
 
-@app.route('/add', ['Post'])
+@app.route('/add', methods=['Post'])
 def add_user():
     username = request.form['username']
     password = request.form['password']
     session = DBSession()
-    new_user = User(name = username, pwd = password)
+    new_user = User(name=username, pwd=password)
     session.add(new_user)
+    session.commit()
+    session.close()
     return render_template('form.html', message='注册成功', username = username)
+
+@app.route('/signin', methods=['Post'])
+def signin():
+    username = request.form['username']
+    password = request.form['password']
+    session = DBSession()
+    user = session.query(User).filter(User.name==username).first()
+    if user == None:
+        return render_template('form.html', message='用户名不存在', username=username)
+    if user.name == username and user.pwd == password:
+        return render_template('sign_ok.html', username=username)
+    else:
+        return render_template('form.html', message='用户名或密码不正确', username=username)
+
+if __name__ == '__main__':
+    app.run()
